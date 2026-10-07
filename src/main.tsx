@@ -6,7 +6,7 @@ import './index.css';
 if ('serviceWorker' in navigator && typeof window !== 'undefined') {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js', { scope: '/' })
+      .register('./sw.js')
       .catch((err) => {
         // Silently catch in dev or iframes
         console.debug('ServiceWorker registration note:', err);
