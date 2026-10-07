@@ -1,0 +1,6 @@
+{
+  "name": "Dead-State Pruner",
+  "description": "DFA Optimization & Language-Preserving State Reduction - Parse, analyze, detect dead and trap states, and prune DFAs with interactive graph visualization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
