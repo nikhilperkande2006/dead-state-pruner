@@ -134,37 +134,32 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({
             </div>
           )}
 
-          {/* PRIMARY 1-CLICK ACTION BUTTON */}
+          {/* PRIMARY ACTION BUTTONS */}
           <div className="w-full space-y-2.5 pt-2">
-            <button
-              type="button"
-              onClick={handleInstallClick}
-              disabled={isInstalling}
+            <a
+              href="./DeadStatePruner-Setup.bat"
+              download="DeadStatePruner-Setup.bat"
               className="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 hover:from-sky-500 hover:via-indigo-500 hover:to-emerald-500 text-white font-bold text-sm shadow-lg shadow-sky-600/20 transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
             >
-              {isInstalled ? (
-                <>
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                  <span>App Already Installed</span>
-                </>
-              ) : isInstallable ? (
-                <>
-                  <Download className="w-4 h-4" />
-                  <span>Install to Desktop Screen</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4" />
-                  <span>Download Desktop App (.html)</span>
-                </>
-              )}
-            </button>
+              <Download className="w-4 h-4" />
+              <span>Download Windows Desktop Installer (.bat)</span>
+            </a>
+
+            {isInstallable && (
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                disabled={isInstalling}
+                className="w-full py-2.5 px-4 rounded-xl border border-sky-500/40 bg-sky-950/30 hover:bg-sky-900/40 text-sky-300 font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                <span>Install via Edge / Chrome App</span>
+              </button>
+            )}
 
             {/* Subtext info */}
-            <p className="text-[11px] text-slate-500">
-              {isInstallable
-                ? 'Creates a direct shortcut on your Desktop with the app icon.'
-                : 'Or in Chrome/Edge, click the Install (⊞) icon in your browser address bar.'}
+            <p className="text-[11px] text-slate-400">
+              Double-click the downloaded <strong>.bat installer</strong> to automatically place the app icon directly on your Desktop!
             </p>
           </div>
         </div>
