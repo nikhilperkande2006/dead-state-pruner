@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Network,
   Download,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -21,7 +22,9 @@ interface HeaderProps {
   onLoadSample: () => void;
   onOpenDownloadModal: () => void;
   hasPruned: boolean;
+  isInstallable?: boolean;
   isInstalled?: boolean;
+  onInstallPWA?: () => Promise<boolean>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -33,7 +36,9 @@ export const Header: React.FC<HeaderProps> = ({
   onLoadSample,
   onOpenDownloadModal,
   hasPruned,
+  isInstallable = false,
   isInstalled = false,
+  onInstallPWA,
 }) => {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: Layers },
@@ -44,6 +49,14 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'testing', label: 'Language Tester', icon: PlayCircle },
     { id: 'help', label: 'How It Works', icon: HelpCircle },
   ];
+
+  const handleInstallClick = async () => {
+    if (isInstallable && onInstallPWA) {
+      const success = await onInstallPWA();
+      if (success) return;
+    }
+    onOpenDownloadModal();
+  };
 
   return (
     <header className={`border-b sticky top-0 z-40 backdrop-blur-md transition-colors ${
@@ -75,15 +88,24 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Download & Install App button in the right corner */}
+          {/* 1-Click Install App button in top right */}
           <button
             type="button"
-            onClick={onOpenDownloadModal}
-            className="flex items-center gap-1.5 text-xs px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-md transition-all hover:scale-102 active:scale-98"
-            title="Download standalone app, install PWA, or export PBL reports"
+            onClick={handleInstallClick}
+            className="flex items-center gap-1.5 text-xs px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 hover:from-sky-500 hover:via-indigo-500 hover:to-emerald-500 text-white font-semibold shadow-md transition-all hover:scale-102 active:scale-98 cursor-pointer"
+            title="Install Dead-State Pruner to your Desktop"
           >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download App</span>
+            {isInstalled ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                <span>Installed</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-3.5 h-3.5" />
+                <span>Install App</span>
+              </>
+            )}
           </button>
 
           <button

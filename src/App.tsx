@@ -154,7 +154,9 @@ export default function App() {
         onLoadSample={() => handleLoadSample('college_pbl_primary')}
         onOpenDownloadModal={() => setIsDownloadModalOpen(true)}
         hasPruned={prunedResult !== null}
+        isInstallable={isInstallable}
         isInstalled={isInstalled}
+        onInstallPWA={installPWA}
       />
 
       {/* Toast Notification */}
