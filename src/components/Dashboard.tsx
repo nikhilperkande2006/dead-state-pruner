@@ -12,6 +12,7 @@ import {
   Sparkles,
   Info,
   Download,
+  FileText,
 } from 'lucide-react';
 
 interface DashboardProps {
