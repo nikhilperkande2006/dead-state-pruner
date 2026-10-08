@@ -1,13 +1,13 @@
 // Dead-State Pruner Service Worker
-const CACHE_NAME = 'dfa-pruner-v1';
+const CACHE_NAME = 'dfa-pruner-v2';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/icon.svg',
-  '/manifest.json',
-  '/apple-touch-icon.png',
-  '/pwa-192x192.png',
-  '/pwa-512x512.png',
+  './',
+  './index.html',
+  './icon.svg',
+  './manifest.json',
+  './apple-touch-icon.png',
+  './pwa-192x192.png',
+  './pwa-512x512.png',
 ];
 
 self.addEventListener('install', (event) => {
