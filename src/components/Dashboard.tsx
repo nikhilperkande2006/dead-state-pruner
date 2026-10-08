@@ -74,11 +74,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={onAnalyze}
-              className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs shadow-md transition-colors flex items-center gap-2"
+              onClick={() => onNavigateTab('input')}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-medium text-xs shadow-md transition-all flex items-center gap-2"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Analyze Current DFA</span>
+              <FileText className="w-4 h-4" />
+              <span>Manual DFA Builder</span>
+            </button>
+            <button
+              type="button"
+              onClick={onAnalyze}
+              className={`px-3.5 py-2 rounded-xl border text-xs font-medium transition-colors flex items-center gap-2 ${
+                isDark
+                  ? 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
+                  : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-sky-400" />
+              <span>Analyze DFA</span>
             </button>
             <button
               type="button"
@@ -97,22 +109,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
               }`}
             >
-              Load College PBL Sample
+              Load Sample Presets
             </button>
-            {onOpenDownloadModal && (
-              <button
-                type="button"
-                onClick={onOpenDownloadModal}
-                className={`px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-                  isDark
-                    ? 'border-emerald-700/60 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50'
-                    : 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-                }`}
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download / Install App</span>
-              </button>
-            )}
           </div>
         </div>
       </div>

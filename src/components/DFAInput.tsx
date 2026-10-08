@@ -194,6 +194,20 @@ export const DFAInput: React.FC<DFAInputProps> = ({
     });
   };
 
+  // Start fresh blank DFA for manual typing
+  const handleStartBlankDFA = () => {
+    onChangeDFA({
+      states: ['q0', 'q1'],
+      alphabet: ['0', '1'],
+      startState: 'q0',
+      finalStates: ['q1'],
+      transitions: {
+        'q0': { '0': 'q0', '1': 'q1' },
+        'q1': { '0': 'q1', '1': 'q0' },
+      },
+    });
+  };
+
   const validationErrors = analysis?.validationErrors || [];
 
   return (
@@ -203,8 +217,18 @@ export const DFAInput: React.FC<DFAInputProps> = ({
         isDark ? 'border-slate-800 bg-slate-900/60' : 'border-slate-200 bg-slate-50'
       }`}>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            PBL Sample Presets:
+          <button
+            type="button"
+            onClick={handleStartBlankDFA}
+            className="text-xs px-3 py-1.5 rounded-lg bg-sky-600/20 text-sky-400 hover:bg-sky-600/30 border border-sky-500/40 font-semibold transition-colors flex items-center gap-1.5"
+            title="Clear and create a fresh blank 2-state DFA to type your own manually"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Start Blank DFA (Manual)</span>
+          </button>
+
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-2">
+            Presets:
           </span>
           {SAMPLE_DFAS.slice(0, 3).map((sample) => (
             <button
