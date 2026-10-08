@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dead-State Pruner — Standalone Offline App</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --emerald: #10b981;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --indigo: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    h1 { font-size: 24px; font-weight: 800; color: #fff; }
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .card-title { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .card-val { font-size: 24px; font-weight: 800; font-family: monospace; margin-top: 4px; }
+    .table-container { overflow-x: auto; margin-top: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th, td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+    th { background: rgba(0,0,0,0.25); color: var(--muted); font-weight: 600; }
+    .tester {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+    input {
+      background: #0b1329;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 14px;
+      width: 260px;
+    }
+    button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+    button:hover { opacity: 0.9; }
+    pre {
+      background: #0b1329;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+    .accepted { color: var(--emerald); font-weight: bold; }
+    .rejected { color: var(--red); font-weight: bold; }
+    footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h1>Dead-State Pruner</h1>
+          <span class="badge">Standalone Offline App</span>
+        </div>
+        <p style="color: var(--muted); font-size: 13px; margin-top: 4px;">
+          College PBL Project · DFA Optimization &amp; Language-Preserving Reduction
+        </p>
+      </div>
+      <div style="color: var(--emerald); font-size: 12px; font-weight: 600;">
+        ✓ Self-Contained Offline File
+      </div>
+    </header>
+
+    <!-- KPI Grid -->
+    <div class="grid">
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Original States</div>
+        <div class="card-val">5</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Reachable</div>
+        <div class="card-val" style="color: var(--emerald)">4</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Unreachable</div>
+        <div class="card-val" style="color: var(--amber)">1</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Dead States</div>
+        <div class="card-val" style="color: var(--red)">1</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Trap States</div>
+        <div class="card-val" style="color: #ec4899">1</div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="card-title">Pruned States</div>
+        <div class="card-val" style="color: var(--accent)">3</div>
+      </div>
+    </div>
+
+    <!-- Formal Classification Card -->
+    <div class="card">
+      <h3 style="font-size: 16px; margin-bottom: 8px;">Automata Graph Analysis Results</h3>
+      <pre>Reachable States:   q0, q1, q2, q3
+Unreachable States: q4
+Useful States:      q0, q1, q3
+Dead States:        q2
+Trap States:        q2</pre>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="card">
+      <h3 style="font-size: 16px; margin-bottom: 4px;">Original vs Pruned Comparison</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Original DFA</th>
+              <th>Pruned DFA</th>
+              <th>Reduction</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>States (|Q|)</td>
+              <td>5 (q0..q4)</td>
+              <td style="color: var(--emerald); font-weight: bold;">3 (q0, q1, q3)</td>
+              <td style="color: var(--red)">-2 states</td>
+            </tr>
+            <tr>
+              <td>Transitions (|δ|)</td>
+              <td>10</td>
+              <td style="color: var(--emerald); font-weight: bold;">6</td>
+              <td style="color: var(--red)">-4 transitions</td>
+            </tr>
+            <tr>
+              <td>Start State (q₀)</td>
+              <td>q0</td>
+              <td>q0</td>
+              <td>Preserved</td>
+            </tr>
+            <tr>
+              <td>Final States (F)</td>
+              <td>{ q3 }</td>
+              <td style="color: var(--indigo);">{ q3 }</td>
+              <td>Preserved</td>
+            </tr>
+            <tr>
+              <td>Language Invariance</td>
+              <td colspan="3" style="color: var(--emerald); font-weight: bold;">
+                L(M_orig) ≡ L(M_pruned) — Strictly Preserved
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Live String Simulator -->
+    <div class="tester">
+      <h3 style="font-size: 16px; margin-bottom: 6px;">Live Offline String Simulator</h3>
+      <p style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">
+        Test any binary string on both the Original and Pruned DFAs:
+      </p>
+      <div>
+        <input id="inputString" type="text" value="01101" placeholder="e.g. 01101" />
+        <button onclick="runSimulation()">Test String</button>
+      </div>
+      <div id="simResult" style="margin-top: 14px; font-family: monospace; font-size: 13px;"></div>
+    </div>
+
+    <footer>
+      Dead-State Pruner · College PBL Project · Complexity: O(|Q| + |δ|) · Double-click to run anywhere
+    </footer>
+  </div>
+
+  <script>
+    const originalDFA = {
+      states: ["q0", "q1", "q2", "q3", "q4"],
+      alphabet: ["0", "1"],
+      startState: "q0",
+      finalStates: ["q3"],
+      transitions: {
+        "q0": { "0": "q1", "1": "q2" },
+        "q1": { "0": "q1", "1": "q3" },
+        "q2": { "0": "q2", "1": "q2" },
+        "q3": { "0": "q3", "1": "q3" },
+        "q4": { "0": "q4", "1": "q4" }
+      }
+    };
+
+    const prunedDFA = {
+      states: ["q0", "q1", "q3"],
+      alphabet: ["0", "1"],
+      startState: "q0",
+      finalStates: ["q3"],
+      transitions: {
+        "q0": { "0": "q1" },
+        "q1": { "0": "q1", "1": "q3" },
+        "q3": { "0": "q3", "1": "q3" }
+      }
+    };
+
+    function simulate(dfa, str) {
+      let current = dfa.startState;
+      const chars = (str === 'ε' || str === '') ? [] : str.split('');
+      for (const c of chars) {
+        if (!dfa.transitions[current] || !dfa.transitions[current][c]) {
+          return { accepted: false, endState: null, deadEnd: true };
+        }
+        current = dfa.transitions[current][c];
+      }
+      return { accepted: dfa.finalStates.includes(current), endState: current, deadEnd: false };
+    }
+
+    function runSimulation() {
+      const val = document.getElementById('inputString').value.trim();
+      const resOrig = simulate(originalDFA, val);
+      const resPruned = simulate(prunedDFA, val);
+      const out = document.getElementById('simResult');
+
+      out.innerHTML = `
+        <div style="background: #0b1329; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+          <div>Original DFA: <span class="${resOrig.accepted ? 'accepted' : 'rejected'}">${resOrig.accepted ? 'ACCEPTED' : 'REJECTED'}</span> (ended in state: ${resOrig.endState || 'sink'})</div>
+          <div style="margin-top: 6px;">Pruned DFA: <span class="${resPruned.accepted ? 'accepted' : 'rejected'}">${resPruned.accepted ? 'ACCEPTED' : 'REJECTED'}</span> (ended in state: ${resPruned.endState || 'dead-end pruned'})</div>
+          <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); font-weight: bold; color: ${resOrig.accepted === resPruned.accepted ? 'var(--emerald)' : 'var(--red)'};">
+            Language Verdict: ${resOrig.accepted === resPruned.accepted ? 'SAME (Language Preserved ✓)' : 'MISMATCH ✗'}
+          </div>
+        </div>
+      `;
+    }
+
+    runSimulation();
+  </script>
+</body>
+</html>

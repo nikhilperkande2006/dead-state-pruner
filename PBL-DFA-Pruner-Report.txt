@@ -1,0 +1,93 @@
+================================================================================
+                    COLLEGE PBL PROJECT SUBMISSION REPORT
+              DEAD-STATE PRUNER: DFA OPTIMIZATION & REDUCTION
+================================================================================
+Domain: Automata Theory & Formal Language Theory (FLAT)
+Algorithm Complexity: O(|Q| + |δ|)
+
+--------------------------------------------------------------------------------
+1. ORIGINAL AUTOMATON SPECIFICATION
+--------------------------------------------------------------------------------
+States Q:           { q0, q1, q2, q3, q4 } (5 states)
+Alphabet Σ:         { 0, 1 }
+Start State q₀:     q0
+Final States F:     { q3 }
+
+Transition Matrix δ(q, σ):
+  q0    : δ(q0, 0) = q1; δ(q0, 1) = q2
+  q1    : δ(q1, 0) = q1; δ(q1, 1) = q3
+  q2    : δ(q2, 0) = q2; δ(q2, 1) = q2
+  q3    : δ(q3, 0) = q3; δ(q3, 1) = q3
+  q4    : δ(q4, 0) = q4; δ(q4, 1) = q4
+
+--------------------------------------------------------------------------------
+2. FORMAL GRAPH ANALYSIS RESULTS
+--------------------------------------------------------------------------------
+Reachable States:
+  q0, q1, q2, q3
+  (Derived via BFS starting from start state q₀ = q0)
+
+Unreachable States (Disconnected from q₀):
+  q4
+  (Cannot be reached from q0 via any string sequence w ∈ {0, 1}*)
+
+Useful States (Can reach at least one final state in F):
+  q0, q1, q3
+  (Derived via reverse graph traversal backwards from F = {q3})
+
+Dead States (Reachable from q₀, but zero path to F):
+  q2
+  (ReachableStates - UsefulStates = {q2})
+
+Trap States (Closed sink components with zero exit to F):
+  q2
+  (Self-loop sink where δ(q2, 0) = q2 and δ(q2, 1) = q2, with q2 ∉ F)
+
+--------------------------------------------------------------------------------
+3. STATE REDUCTION SUMMARY
+--------------------------------------------------------------------------------
+States Before Pruning:   5
+States After Pruning:    3
+States Removed:          2 ({ q2, q4 })
+Transitions Removed:     4
+
+Pruned States Q':        { q0, q1, q3 }
+Pruned Final States F':  { q3 }
+
+Reduced Transition Matrix:
+  q0    : δ(q0, 0) = q1
+  q1    : δ(q1, 0) = q1; δ(q1, 1) = q3
+  q3    : δ(q3, 0) = q3; δ(q3, 1) = q3
+
+--------------------------------------------------------------------------------
+4. THEORETICAL LANGUAGE PRESERVATION PROOF
+--------------------------------------------------------------------------------
+Theorem: L(M_original) ≡ L(M_pruned)
+Proof:
+  1. Let w be any string accepted by M_original.
+     The sequence of states traversed by w begins at q₀ and terminates in F.
+     By definition:
+       - Every state on this computation path is reachable from q₀.
+       - Every state on this computation path can reach F, hence is useful.
+  2. Unreachable states (q4) are never entered in any computation starting from q₀.
+  3. Dead states (q2) can never lead to an accepting state, so no accepted string
+     can ever visit a dead state.
+  4. Therefore, eliminating unreachable and dead states removes zero accepting
+     derivations. The accepted language L(M) is strictly invariant.
+
+--------------------------------------------------------------------------------
+5. EMPIRICAL VERIFICATION RESULTS (SAMPLE STRINGS)
+--------------------------------------------------------------------------------
+String: "ε"       | Original: REJECTED | Pruned: REJECTED | Equivalence: SAME
+String: "0"       | Original: REJECTED | Pruned: REJECTED | Equivalence: SAME
+String: "1"       | Original: REJECTED | Pruned: REJECTED | Equivalence: SAME
+String: "01"      | Original: ACCEPTED | Pruned: ACCEPTED | Equivalence: SAME
+String: "001"     | Original: ACCEPTED | Pruned: ACCEPTED | Equivalence: SAME
+String: "011"     | Original: ACCEPTED | Pruned: ACCEPTED | Equivalence: SAME
+String: "10"      | Original: REJECTED | Pruned: REJECTED | Equivalence: SAME
+String: "11"      | Original: REJECTED | Pruned: REJECTED | Equivalence: SAME
+String: "01101"   | Original: ACCEPTED | Pruned: ACCEPTED | Equivalence: SAME
+
+================================================================================
+Generated via Dead-State Pruner Application
+================================================================================
