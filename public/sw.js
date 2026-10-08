@@ -1,23 +1,7 @@
-// Dead-State Pruner Service Worker
-const CACHE_NAME = 'dfa-pruner-v2';
-const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './icon.svg',
-  './manifest.json',
-  './apple-touch-icon.png',
-  './pwa-192x192.png',
-  './pwa-512x512.png',
-];
+// Dead-State Pruner Service Worker (Network-First)
+const CACHE_NAME = 'dfa-pruner-v3';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('Cache addAll warning:', err);
-      });
-    })
-  );
   self.skipWaiting();
 });
 
@@ -33,22 +17,32 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Pass through non-GET and download API requests
   if (event.request.method !== 'GET' || event.request.url.includes('/api/download/')) {
     return;
   }
 
+  // Network-First strategy: always fetch fresh from network first
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        // Fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        // Fallback to cache if network fails (offline)
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html') || caches.match('./');
+          }
+        });
+      })
   );
 });
